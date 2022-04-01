@@ -4,3 +4,5 @@ webdriver-manager
 
 selenium
 gspread
+
+jwt
