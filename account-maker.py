@@ -12,6 +12,11 @@ while True:
         username = util.random_letters()
         password = util.random_string()
 
+        # WebDriver initialization
+        from selenium.webdriver.chrome.service import Service
+        from webdriver_manager.chrome import ChromeDriverManager
+        # os.environ['WDM_LOG_LEVEL'] = '0'
+
         options = webdriver.ChromeOptions()
         #options.headless = True
         options.add_extension('/Users/shum/Desktop/projects/reddit-place-bot/extension_1_3_1_0.crx')
@@ -19,7 +24,7 @@ while True:
         options.add_experimental_option('useAutomationExtension', False)
         options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0')
 
-        driver = webdriver.Chrome(executable_path='/Users/shum/Desktop/projects/reddit-place-bot/chromedriver', options=options)
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
         def send_keys_better(element, text):
             for t in text:
