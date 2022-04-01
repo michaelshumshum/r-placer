@@ -20,7 +20,7 @@ please
 
 ## requirements
 for bot:
-`pip install requests`
+`pip install requests PyJWT`
 
 for account creation:
 `pip install selenium gspread webdriver-manager`
