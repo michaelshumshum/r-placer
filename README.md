@@ -17,7 +17,7 @@ for bot:
 `pip install requests`
 
 for account creation:
-`pip install selenium gspread`
+`pip install selenium gspread webdriver-manager`
 
 or use requirements.txt file
 `pip install -r requirements.txt`
