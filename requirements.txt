@@ -5,4 +5,4 @@ webdriver-manager
 selenium
 gspread
 
-jwt
+PyJWT
