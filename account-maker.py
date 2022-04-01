@@ -1,4 +1,5 @@
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,21 +13,16 @@ while True:
         username = util.random_letters()
         password = util.random_string()
 
-        # WebDriver initialization
-        from selenium.webdriver.chrome.service import Service
-        from webdriver_manager.chrome import ChromeDriverManager
-        # os.environ['WDM_LOG_LEVEL'] = '0'
-
         options = webdriver.ChromeOptions()
-        #options.headless = True
-        options.add_extension('/Users/shum/Desktop/projects/reddit-place-bot/extension_1_3_1_0.crx')
+        # options.headless = True #disabled for testing
+        options.add_extension('extension_1_3_1_0.crx')
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0')
 
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
-        def send_keys_better(element, text):
+        def send_keys_better(element, text):  # to avoid automation detection. if you type it instantly, recaptcha detects it.
             for t in text:
                 element.send_keys(t)
                 time.sleep(0.1)
@@ -60,6 +56,8 @@ while True:
         time.sleep(5)
         driver.quit()
         time.sleep(300)
+    except KeyboardInterrupt:
+        break
     except:
         driver.quit()
         continue

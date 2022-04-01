@@ -30,14 +30,11 @@ def make(username, password, coordinates, color):
     )
     r = s.get(f'https://www.reddit.com/r/place?cx={coordinates[0]}&cy={coordinates[1]}&px=18')
     auth = 'Bearer ' + jwt.decode(s.cookies.get_dict()['token_v2'], options={"verify_signature": False}, algorithms='HS256')['sub']
-    print(auth)
-    print(s.cookies.get_dict())
     r = s.options('https://gql-realtime-2.reddit.com/query', headers={'origin': 'https://hot-potato.reddit.com',
                                                                       'referer': 'https://hot-potato.reddit.com/',
                                                                       'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
                                                                       'access-control-request-headers': 'authorization,content-type,x-reddit-loid,x-reddit-session',
                                                                       'access-control-request-method': 'POST'})
-    print(r)
     r = s.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
                                                                    'origin': 'https://www.reddit.com',
                                                                    'referer': 'https://www.reddit.com/',
@@ -48,7 +45,6 @@ def make(username, password, coordinates, color):
                                                                                                                                        'operationName': "GetPersonalizedTimer",
                                                                                                                                        'query': "mutation GetPersonalizedTimer{\n  act(\n    input: {actionName: \"r/replace:get_user_cooldown\"}\n  ) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetUserCooldownResponseMessageData {\n            nextAvailablePixelTimestamp\n          }\n        }\n      }\n    }\n  }\n}\n\n\nsubscription SUBSCRIBE_TO_CONFIG_UPDATE {\n  subscribe(input: {channel: {teamOwner: AFD2022, category: CONFIG}}) {\n    id\n    ... on BasicMessage {\n      data {\n        ... on ConfigurationMessageData {\n          __typename\n          colorPalette {\n            colors {\n              hex\n              index\n            }\n          }\n          canvasConfigurations {\n            dx\n            dy\n            index\n          }\n          canvasWidth\n          canvasHeight\n        }\n      }\n    }\n  }\n}\n\n\nsubscription SUBSCRIBE_TO_CANVAS_UPDATE {\n  subscribe(\n    input: {channel: {teamOwner: AFD2022, category: CANVAS, tag: \"0\"}}\n  ) {\n    id\n    ... on BasicMessage {\n      id\n      data {\n        __typename\n        ... on DiffFrameMessageData {\n          currentTimestamp\n          previousTimestamp\n          name\n        }\n        ... on FullFrameMessageData {\n          __typename\n          name\n          timestamp\n        }\n      }\n    }\n  }\n}\n\n\n\n\nmutation SET_PIXEL {\n  act(\n    input: {actionName: \"r/replace:set_pixel\", PixelMessageData: {coordinate: { x: 53, y: 35}, colorIndex: 3, canvasIndex: 0}}\n  ) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on SetPixelResponseMessageData {\n            timestamp\n          }\n        }\n      }\n    }\n  }\n}\n\n\n\n\n# subscription configuration($input: SubscribeInput!) {\n#     subscribe(input: $input) {\n#       id\n#       ... on BasicMessage {\n#         data {\n#           __typename\n#           ... on RReplaceConfigurationMessageData {\n#             colorPalette {\n#               colors {\n#                 hex\n#                 index\n#               }\n#             }\n#             canvasConfigurations {\n#               index\n#               dx\n#               dy\n#             }\n#             canvasWidth\n#             canvasHeight\n#           }\n#         }\n#       }\n#     }\n#   }\n\n# subscription replace($input: SubscribeInput!) {\n#   subscribe(input: $input) {\n#     id\n#     ... on BasicMessage {\n#       data {\n#         __typename\n#         ... on RReplaceFullFrameMessageData {\n#           name\n#           timestamp\n#         }\n#         ... on RReplaceDiffFrameMessageData {\n#           name\n#           currentTimestamp\n#           previousTimestamp\n#         }\n#       }\n#     }\n#   }\n# }\n",
                                                                                                                                        'variables': {'input': {'channel': {'teamOwner': "GROWTH", 'category': "R_REPLACE", 'tag': "canvas:0:frames"}}}})
-    print(r)
     r = s.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
                                                                    'origin': 'https://hot-potato.reddit.com',
                                                                    'referer': 'https://hot-potato.reddit.com/',
@@ -56,10 +52,8 @@ def make(username, password, coordinates, color):
                                                                    'apollographql-client-name': 'mona-lisa',
                                                                    'apollographql-client-version': '0.0.1',
                                                                    'authorization': auth}, data=payload(coordinates, color))
-    print(r.headers)
-    print(r.text)
-    print()
+    return r.text
 
 
 if __name__ == '__main__':
-    make('OEawoobNgXFQGfpwTDlS', '#z|6D~LICM}7tZYo', (326, 356), 3)
+    print(make('OEawoobNgXFQGfpwTDlS', '#z|6D~LICM}7tZYo', (326, 356), 3))  # this is the burner account i am using for testing. feel free to use it.
