@@ -17,5 +17,7 @@ for bot:
 `pip install requests`
 
 for account creation:
-`pip install selenium`
-`pip install gspread`
+`pip install selenium gspread`
+
+or use requirements.txt file
+`pip install -r requirements.txt`
