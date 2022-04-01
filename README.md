@@ -9,6 +9,12 @@ included is a reddit account creator that uses disposable emails. it can automat
 right now, code is really messy. hopefully this time it lasts longer so this can at least be used a little bit.
 
 to use it/test right now, run `make_request.py`. most of the future work will be done in there.
+
+## colors
+
+![image](https://user-images.githubusercontent.com/1373867/161342891-3f365c94-b583-4548-9e5a-e853fbd657cb.png)
+
+
 ## contributing
 please
 
