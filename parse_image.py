@@ -30,14 +30,10 @@ def _closet_color_index(rgb):
     return sorted(distances)[0][1]
 
 
-def parse_image(image_dir):
+def parse_image(image_dir, x, y):  # x and y argument for location of the image on the canvas
     l = []
     pixel_array = np.array(Image.open(image_dir))
     for iy, y in enumerate(np.array(Image.open(image_dir))):
         for ix, x in enumerate(y):
-            l.append((ix, iy, _closet_color_index(x)))
+            l.append((ix + x, iy + y, _closet_color_index(x)))
     return l
-
-
-if __name__ == '__main__':
-    print(parse_image('/Users/shum/Desktop/Screenshot 2022-04-03 at 3.16.13 AM.png'))
