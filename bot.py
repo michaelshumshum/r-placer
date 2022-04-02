@@ -47,7 +47,6 @@ def _add_developer_account(name):
     time.sleep(1)
     text = s.get('https://reddit.com/prefs/apps', headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}).text
     uh = text[text.find('<input type="hidden" name="uh" value=') + 38:text.find('<input type="hidden" name="uh" value=') + 88]
-    print(uh)
     time.sleep(1)
     r = s.post('https://www.reddit.com/api/adddeveloper',
                data={
@@ -59,7 +58,6 @@ def _add_developer_account(name):
                }, headers={'content-type': 'application/x-www-form-urlencoded',
                            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}
                )
-    print(r.text)
 
 
 class account:
