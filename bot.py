@@ -27,9 +27,8 @@ def _payload(coordinates, color):
 def _add_developer_account(name):
     def _write_file():
         dev_accounts.append(name)
-        with open('dev_accounts.txt', 'w+') as f:
-            for d in dev_accounts:
-                f.write(d)
+        with open('dev_accounts.txt', 'a') as f:
+            f.write('\n' + d)
     Thread(target=_write_file).start()
     s = Session()
     text = s.get('https://www.reddit.com/login').text
@@ -61,12 +60,12 @@ def _add_developer_account(name):
 
 
 class account:
-    def __init__(self, username, password):
+    def __init__(self, username, password, auth_token=None):
         self.username = username
         self.password = password
 
         self.session = Session()
-        self.auth_token = None
+        self.auth_token = auth_token
         self.auth_token_expiry = 0
 
     def get_auth_token(self):
@@ -81,7 +80,6 @@ class account:
         self.auth_token_expiry = time.time() + j['expires_in']
 
     def add_pixel(self, coordinates, color):
-        r = self.session.get(f'https://www.reddit.com/r/place?cx={coordinates[0]}&cy={coordinates[1]}&px=18', headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0', })
         if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
             self.get_auth_token()
         r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
@@ -95,5 +93,5 @@ class account:
 
 
 if __name__ == '__main__':
-    a = account('OEawoobNgXFQGfpwTDlS', '#z|6D~LICM}7tZYo')  # this is the burner account i am using for testing. feel free to use it.
-    print(a.add_pixel((3, 0), 3))
+    a = account('arhUGRBAIWIEcoIOVsDT', '6N5yMq.4LbtHw^1r')  # this is the burner account i am using for testing. feel free to use it.
+    print(a.add_pixel((629, 20), 31))
