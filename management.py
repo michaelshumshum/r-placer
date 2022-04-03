@@ -1,6 +1,7 @@
 import bot
 import parse_image
 import json
+import numpy as np
 from queue import Queue
 from PIL import Image
 from io import BytesIO
@@ -11,7 +12,9 @@ from websocket import create_connection
 
 class manager:
     def __init__(self, image_dir, location):
-        self.image = parse_image.parse_image(image_dir, *location)
+        self.image_data = parse_image.parse_image(image_dir, location)
+        self.image_size = parse_image.get_image_size(image_dir)
+        self.image_location = location
         self.accounts = []
         with open('accounts.csv', 'r') as f:
             for row in reader(f):
@@ -93,16 +96,25 @@ class manager:
                     break
 
         ws.close()
-        return BytesIO(get(file, stream=True).content)
-
-    def get_image_state(self):
-        canvas = Image.open(self.get_board())
-        # more stuff coming
+        img = Image.open(BytesIO(get(file, stream=True).content))
+        img = img.crop(
+            (self.image_location[0],
+             self.image_location[1],
+             self.image_location[0] + self.image_size[1],
+             self.image_location[1] + self.image_size[0])
+        )
+        return np.array(img)
 
     def stage_events(self):  # get all unset pixels from get_image_state. create a queue of events that can that the accounts can execute.
-        pass
+        events = {i: [] for i in range(1, 33)}
+        board = self.get_board()
+        change_count = 0
+        for (x, y), color in parse_image.parse_board_array(board, self.image_location).items():
+            if self.image_data[(x, y)] != color:
+                events[color].append((x, y))
+                change_count += 1
+        return events, change_count
 
 
 if __name__ == '__main__':
-    m = manager('/Users/shum/Desktop/Screenshot 2022-04-03 at 3.16.13 AM.png', (0, 0))
-    m.get_board()
+    m = manager('/Users/shum/Desktop/Screenshot 2022-04-03 at 3.16.13 AM.png', (100, 50))

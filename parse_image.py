@@ -1,20 +1,32 @@
 import numpy as np
 from PIL import Image
 
+
 _COLORS = [
-    (('ff', '45', '00'), 2),
-    (('ff', 'a8', '00'), 3),
-    (('ff', 'd6', '35'), 4),
-    (('00', 'a3', '68'), 6),
-    (('7e', 'ed', '56'), 8),
-    (('24', '50', 'a4'), 12),
-    (('36', '90', 'ea'), 13),
-    (('51', 'e9', 'f4'), 14),
-    (('81', '1e', '9f'), 25),
-    (('b4', '4a', 'c0'), 27),
-    (('ff', '99', 'aa'), 29),
-    (('9c', '69', '26'), 30),
-    (('00', '00', '00'), 31),
+    (('BE', '00', '39'), 1),  # dark red
+    (('FF', '45', '00'), 2),  # red
+    (('FF', 'A8', '00'), 3),  # orange
+    (('FF', 'D6', '35'), 4),  # yellow
+    (('00', 'A3', '68'), 6),  # dark green
+    (('00', 'CC', '78'), 7),  # green
+    (('7E', 'ED', '56'), 8),  # light green
+    (('00', '75', '6F'), 9),  # dark teal
+    (('00', '9E', 'AA'), 10),  # teal
+    (('24', '50', 'A4'), 12),  # dark blue
+    (('36', '90', 'EA'), 13),  # blue
+    (('51', 'E9', 'F4'), 14),  # light blue
+    (('49', '3A', 'C1'), 15),  # indigo
+    (('6A', '5C', 'FF'), 16),  # periwinkle
+    (('81', '1E', '9F'), 18),  # dark purple
+    (('B4', '4A', 'C0'), 19),  # purple
+    (('FF', '38', '81'), 22),  # pink
+    (('FF', '99', 'AA'), 23),  # light pink
+    (('6D', '48', '2F'), 24),  # dark brown
+    (('9C', '69', '26'), 25),  # brown
+    (('00', '00', '00'), 27),  # black
+    (('89', '8D', '90'), 29),  # gray
+    (('D4', 'D7', 'D9'), 30),  # light gray
+    (('FF', 'FF', 'FF'), 31),  # white
 ]
 
 
@@ -30,10 +42,26 @@ def _closet_color_index(rgb):
     return sorted(distances)[0][1]
 
 
-def parse_image(image_dir, x, y):  # x and y argument for location of the image on the canvas
-    l = []
+def get_image_size(image_dir):
+    return np.array(Image.open(image_dir)).shape[0:2]
+
+
+def parse_board_array(board, image_location=None):
+    l = {}
+    if not image_location:
+        image_location = (0, 0)
+    for iy, y in enumerate(board):
+        for ix, x in enumerate(y):
+            l[(ix + image_location[0], iy + image_location[1])] = x
+    return l
+
+
+def parse_image(image_dir, image_location=None):  # x and y argument for location of the image on the canvas
+    l = {}
+    if not image_location:
+        image_location = (0, 0)
     pixel_array = np.array(Image.open(image_dir))
     for iy, y in enumerate(np.array(Image.open(image_dir))):
         for ix, x in enumerate(y):
-            l.append((ix + x, iy + y, _closet_color_index(x)))
+            l[(ix + image_location[0], iy + image_location[1])] = _closet_color_index(x)
     return l
