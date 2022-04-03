@@ -2,7 +2,7 @@
 bot for 2022 r/place
 
 ## what
-almost working r/place bot that takes an input image, location, and account logins to draw to the r/place canvas. relatively neat compared to [this one](https://github.com/Zequez/reddit-placebot) as coding style is more OOP. though, could still need some touching up.
+working r/place bot that takes an input image, location, and account login to draw to the r/place canvas. relatively neat compared to [this one](https://github.com/Zequez/reddit-placebot) as coding style is more OOP. though, could still need some touching up.
 
 supports multiple accounts.
 ## contributing
@@ -19,4 +19,4 @@ adjust configuration in `config.json`. i have included the information for my ap
 run `python main.py <image path> <x-coord> <y-coord>`, where the image path is the image you want to draw, and x-coord/y-coord represent the location you want the image to be drawn.
 
 ## notes
-make sure to verify all the emails for all your accounts. that seems to be primary factor in getting accounts banned.
+make sure to verify all the emails for all your accounts. that seems to be primary factor in getting accounts banned. though, still not guaranteed it doesn't get banned. some people have success. all my accounts get banned.
