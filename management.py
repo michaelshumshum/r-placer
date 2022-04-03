@@ -166,22 +166,22 @@ class manager:
         return events, change_count
 
     def choose_account(self):
-        while True:
+        for i in range(len(self.accounts)):
             account = random.choice(self.accounts)
-            if (account['state'] == 'BANNED') or (account['next_draw'] > time.time()):
+            if (account['state'] == 'BANNED') or (account['next_available'] > time.time()):
                 continue
             else:
                 return account
         return None
 
     def execute_events(self, events):
-        for color, c in events:
+        for color, c in events.items():
             for coords in c:
                 account = self.choose_account()
                 if not account:
                     raise Exception('All accounts banned!')
                 r = json.loads(account['class'].set_pixel(coords, color))
-                if 'error' in r.keys:
+                if 'errors' in r.keys():
                     account['state'] = 'BANNED'
                 else:
                     account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp']
@@ -190,10 +190,11 @@ class manager:
     def run(self):
         def f(event):
             while event.is_set():
-                self.execute_events(self.stage_events())
+                events, changes = self.stage_events()
+                self.execute_events(events)
         self.thread_event = Event()
         self.thread_event.set()
-        self.thread = Thread(target=f, args=(self.thread_event))
+        self.thread = Thread(target=f, args=(self.thread_event,))
         self.thread.run()
 
     def stop(self):
@@ -201,4 +202,5 @@ class manager:
 
 
 if __name__ == '__main__':
-    m = manager('/Users/shum/Desktop/Screenshot 2022-04-03 at 3.16.13 AM.png', (100, 50))
+    m = manager('/Users/shum/Desktop/test.png', (100, 50))
+    m.run()

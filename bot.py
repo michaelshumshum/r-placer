@@ -1,5 +1,6 @@
 from requests import Session, auth
 from threading import Thread
+from json import loads
 import jwt
 import time
 import _config
@@ -86,11 +87,11 @@ class account:
     def get_auth_token(self):
         if self.username not in dev_accounts:
             _add_developer_account(self.username)
-        j = json.loads(self.session.post('https://ssl.reddit.com/api/v1/access_token', data={'grant_type': 'password',
-                                                                                             'username': self.username,
-                                                                                             'password': self.password},
-                                         auth=auth.HTTPBasicAuth(_config.config['app-client-id'], _config.config['app-secret']),
-                                         headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}).text)
+        j = loads(self.session.post('https://ssl.reddit.com/api/v1/access_token', data={'grant_type': 'password',
+                                                                                        'username': self.username,
+                                                                                        'password': self.password},
+                                    auth=auth.HTTPBasicAuth(_config.config['app-client-id'], _config.config['app-secret']),
+                                    headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}).text)
         self.auth_token = 'Bearer ' + j['access_token']
         self.auth_token_expiry = time.time() + j['expires_in']
 
