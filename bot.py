@@ -44,7 +44,7 @@ def _add_developer_account(name):
     def _write_file():
         dev_accounts.append(name)
         with open('dev_accounts.txt', 'a') as f:
-            f.write('\n' + d)
+            f.write('\n' + name)
     Thread(target=_write_file).start()
     s = Session()
     text = s.get('https://www.reddit.com/login').text

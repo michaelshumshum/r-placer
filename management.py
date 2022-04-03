@@ -71,7 +71,7 @@ class manager:
         self.image_location = location
         self.accounts = []
         with open('accounts.csv', 'r') as f:
-            for row in reader(f):
+            for row in reader(f, delimiter=' '):
                 email, username, password = row
                 self.accounts.append({
                     'email': email,
@@ -160,8 +160,3 @@ class manager:
 
     def stop(self):
         self.thead_event.clear()
-
-
-if __name__ == '__main__':
-    m = manager('/Users/shum/Desktop/test.png', (100, 50))
-    m.run()
