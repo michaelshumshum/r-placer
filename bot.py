@@ -24,7 +24,6 @@ def _setpixel_payload(coordinates, color):
             y -= 1000
             canvas = 3
         else:
-            x -= 1000
             canvas = 1
     return {'operationName': 'setPixel',
             'query': "mutation setPixel($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetUserCooldownResponseMessageData {\n            nextAvailablePixelTimestamp\n            __typename\n          }\n          ... on SetPixelResponseMessageData {\n            timestamp\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
@@ -51,6 +50,12 @@ def _pixelhistory_payload(coordinates):
             y -= 1000
             canvas = 3
         else:
+
+
+<< << << < HEAD
+== == == =
+            x -= 1000
+>>>>>> > fa86b0721265965873137094baa988b1d2d4e041
             canvas = 1
     return {"operationName": "pixelHistory",
             "variables": {
