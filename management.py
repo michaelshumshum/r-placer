@@ -82,7 +82,7 @@ class manager:
                     'password': password,
                     'class': bot.account(username, password),
                     'next_available': 0,
-                    'state': 'OK'
+                    'state': 'IDLE'
                 })
 
     def get_board(self):  # from https://github.com/Zequez/reddit-placebot/issues/46#issuecomment-1086736236
@@ -160,6 +160,7 @@ class manager:
                     else:
                         account['next_available'] = r['errors'][1]['next available']
                 else:
+                    account['state'] = 'IDLE'
                     account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp']
             except Exception as e:
                 Logger.log(f'{current_thread().name} - Failed last action due to exception "{e}".', severity=Logger.Error)
