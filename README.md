@@ -20,3 +20,5 @@ run `python main.py <image path> <x-coord> <y-coord>`, where the image path is t
 
 ## notes
 make sure to verify all the emails for all your accounts. that seems to be primary factor in getting accounts banned. though, still not guaranteed it doesn't get banned. some people have success. all my accounts get banned.
+
+account maker is quite dysfunctional.
