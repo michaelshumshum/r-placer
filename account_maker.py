@@ -3,13 +3,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+import _config
 import util
 import time
 import sheets
 
 while True:
     try:
-        email = util.random_string() + '@yopmail.com'
+        email = _config.config['account-maker-email']
         username = util.random_letters()
         password = util.random_string()
 
@@ -28,10 +29,7 @@ while True:
                 time.sleep(0.1)
 
         driver.implicitly_wait(5)
-        driver.get('https://www.reddit.com/')
-        driver.find_element_by_xpath('//*[@id="SHORTCUT_FOCUSABLE_DIV"]/div[1]/header/div/div[2]/div/div[1]/a[2]').click()
-        driver.switch_to_frame(driver.find_element_by_css_selector('iframe[src^="https://www.reddit.com/register"]'))
-
+        driver.get('https://www.reddit.com/register/')
         email_input = driver.find_element_by_id('regEmail')
         send_keys_better(email_input, email)
         time.sleep(0.5)
@@ -55,9 +53,8 @@ while True:
         sheets.add([email, username, password])
         time.sleep(5)
         driver.quit()
-        time.sleep(300)
     except KeyboardInterrupt:
         break
-    except:
+    except Exception:
         driver.quit()
         continue
