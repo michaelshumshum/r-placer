@@ -154,9 +154,9 @@ class manager:
                     if r['errors'][0]['extensions']['nextAvailablePixelTs'] > 1000:
                         account['state'] = 'BANNED'
                         Logger.log(f'{current_thread().name} - Account {account["username"]} is banned!', severity=Logger.Warn)
+                        Logger.log(f'{current_thread().name} - Failed last action due to ban.', severity=Logger.Error)
                     else:
                         account['next_available'] = r['errors'][1]['next available']
-                    Logger.log(f'{current_thread().name} - Failed last action due to ban.', severity=Logger.Error)
                 else:
                     account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp']
             except Exception as e:
