@@ -6,23 +6,30 @@ _COLORS = [
     (('FF', '45', '00'), 2),  # red
     (('FF', 'A8', '00'), 3),  # orange
     (('FF', 'D6', '35'), 4),  # yellow
+    (('FF', 'F8', 'B8'), 5),  # pale yellow
     (('00', 'A3', '68'), 6),  # dark green
     (('00', 'CC', '78'), 7),  # green
     (('7E', 'ED', '56'), 8),  # light green
     (('00', '75', '6F'), 9),  # dark teal
     (('00', '9E', 'AA'), 10),  # teal
+    (('00', 'CC', '00'), 11),  # light teal
     (('24', '50', 'A4'), 12),  # dark blue
     (('36', '90', 'EA'), 13),  # blue
     (('51', 'E9', 'F4'), 14),  # light blue
     (('49', '3A', 'C1'), 15),  # indigo
     (('6A', '5C', 'FF'), 16),  # periwinkle
+    (('94', 'B3', 'FF'), 17),  # lavender
     (('81', '1E', '9F'), 18),  # dark purple
     (('B4', '4A', 'C0'), 19),  # purple
+    (('E4', 'AB', 'FF'), 20),  # pale purple
+    (('DE', '10', '7F'), 21),  # magenta
     (('FF', '38', '81'), 22),  # pink
     (('FF', '99', 'AA'), 23),  # light pink
     (('6D', '48', '2F'), 24),  # dark brown
     (('9C', '69', '26'), 25),  # brown
+    (('FF', 'B4', '70'), 26),  # beige
     (('00', '00', '00'), 27),  # black
+    (('51', '52', '52'), 28),  # dark gray
     (('89', '8D', '90'), 29),  # gray
     (('D4', 'D7', 'D9'), 30),  # light gray
     (('FF', 'FF', 'FF'), 31),  # white
