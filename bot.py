@@ -92,7 +92,12 @@ class account:
                                                                                         'password': self.password},
                                     auth=auth.HTTPBasicAuth(_config.config['app-client-id'], _config.config['app-secret']),
                                     headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}).text)
-        self.auth_token = 'Bearer ' + j['access_token']
+        while True:  # might hit rate limit. retry later to obtain access token.
+            try:
+                self.auth_token = 'Bearer ' + j['access_token']
+                break
+            except Exception:
+                time.sleep(5)
         self.auth_token_expiry = time.time() + j['expires_in']
 
     def check_pixel(self, coordinates):

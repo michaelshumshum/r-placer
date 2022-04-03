@@ -152,7 +152,7 @@ class manager:
                     time.sleep(30)
                 r = json.loads(account['class'].set_pixel(coords, color))
                 if 'errors' in r.keys():
-                    if r['errors'][0]['extensions']['nextAvailablePixelTs'] > 1000:
+                    if (r['errors'][0]['extensions']['nextAvailablePixelTs'] / 100) - time.time() > 1000:
                         account['state'] = 'BANNED'
                         Logger.log(f'{current_thread().name} - Account {account["username"]} is banned!', severity=Logger.Warn)
                         Logger.log(f'{current_thread().name} - Failed last action due to ban.', severity=Logger.Error)
