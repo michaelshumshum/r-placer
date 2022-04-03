@@ -12,9 +12,21 @@ with open('dev_accounts.txt', 'r') as f:
 def _setpixel_payload(coordinates, color):
     x, y = coordinates
     canvas = 0
-    while canvas > 1000:  # adjust x-coordinate for other canvases
+    if (x > 1000):  # support for the new canvases
         x -= 1000
-        canvas += 1
+        if (y > 1000):
+            y -= 1000
+            canvas = 4
+        else:
+            x -= 1000
+            canvas = 2
+    else:
+        if (y > 1000):
+            y -= 1000
+            canvas = 3
+        else:
+            x -= 1000
+            canvas = 1
     return {'operationName': 'setPixel',
             'query': "mutation setPixel($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetUserCooldownResponseMessageData {\n            nextAvailablePixelTimestamp\n            __typename\n          }\n          ... on SetPixelResponseMessageData {\n            timestamp\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
             'variables': {
@@ -28,10 +40,21 @@ def _setpixel_payload(coordinates, color):
 
 def _pixelhistory_payload(coordinates):
     x, y = coordinates
-    canvas = 0
-    while canvas > 1000:  # adjust x-coordinate for other canvases
+    if (x > 1000):
         x -= 1000
-        canvas += 1
+        if (y > 1000):
+            y -= 1000
+            canvas = 4
+        else:
+            x -= 1000
+            canvas = 2
+    else:
+        if (y > 1000):
+            y -= 1000
+            canvas = 3
+        else:
+            x -= 1000
+            canvas = 1
     return {"operationName": "pixelHistory",
             "variables": {
                 "input": {
