@@ -117,9 +117,10 @@ class manager:
     def choose_account(self):
         for i in range(len(self.accounts)):
             account = random.choice(self.accounts)
-            if (account['state'] == 'BANNED') or (account['next_available'] > time.time()):
+            if (account['state'] == 'BANNED') or (account['next_available'] > time.time()) or (account['state'] == 'IN USE'):
                 continue
             else:
+                account['state'] = 'IN USE'
                 return account
         return None
 
