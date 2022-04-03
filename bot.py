@@ -50,12 +50,6 @@ def _pixelhistory_payload(coordinates):
             y -= 1000
             canvas = 3
         else:
-
-
-<< << << < HEAD
-== == == =
-            x -= 1000
->>>>>> > fa86b0721265965873137094baa988b1d2d4e041
             canvas = 1
     return {"operationName": "pixelHistory",
             "variables": {
