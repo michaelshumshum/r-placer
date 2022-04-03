@@ -2,12 +2,60 @@ import bot
 import parse_image
 import json
 import numpy as np
+import random
+import time
+import _config
+from threading import Thread, Event
 from queue import Queue
 from PIL import Image
 from io import BytesIO
 from csv import reader
 from requests import get
 from websocket import create_connection
+
+
+class Logger:
+
+    class Severity:
+        pass
+
+    class Moderate(Severity):
+        pass
+
+    class Error(Severity):
+        pass
+
+    class Success(Severity):
+        pass
+
+    class Warn(Severity):
+        pass
+
+    class Verbose(Severity):
+        pass
+
+    verbose = False  # change this to true for inclusion verbose logging
+
+    @classmethod
+    def log(cls, text, severity=Moderate):
+        output = ''
+        if not isinstance(severity(), cls.Severity):
+            raise TypeError(f'must be Logger.Severity, not {severity.__name__}')
+        if isinstance(severity(), cls.Verbose) and not cls.verbose:
+            return
+        if isinstance(severity(), cls.Moderate) or (isinstance(severity(), cls.Verbose) and cls.verbose):
+            output += '[INFO]'
+        elif isinstance(severity(), cls.Error):
+            output += '[31m[ERROR][0m'  # invisible character is actuall backslash033
+        elif isinstance(severity(), cls.Success):
+            output += '[32m[SUCCESS][0m'
+        elif isinstance(severity(), cls.Warn):
+            output += '[33m[WARN][0m'
+
+        print(output + ' ' + text)
+
+
+Logger.verbose = _config.config['verbose']
 
 
 class manager:
@@ -23,7 +71,9 @@ class manager:
                     'email': email,
                     'username': username,
                     'password': password,
-                    'class': bot.account(username, password)
+                    'class': bot.account(username, password),
+                    'next_available': 0,
+                    'state': 'OK'
                 })
 
     def get_board(self):  # from https://github.com/rdeepak2002/reddit-place-script-2022/blob/main/main.py
@@ -115,6 +165,40 @@ class manager:
                 change_count += 1
         return events, change_count
 
+    def choose_account(self):
+        while True:
+            account = random.choice(self.accounts)
+            if (account['state'] == 'BANNED') or (account['next_draw'] > time.time()):
+                continue
+            else:
+                return account
+        return None
+
+    def execute_events(self, events):
+        for color, coords in events:
+            account = self.choose_account()
+            if not account:
+                raise Exception('All accounts banned!')
+            r = json.loads(account['class'].set_pixel(coords, color))
+            if 'error' in r.keys:
+                account['state'] = 'BANNED'
+            else:
+                account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp']
+            time.sleep(1)
+
+    def run(self):
+        def f(event):
+            while True:
+                self.execute_events(self.stage_events())
+        self.thread_event = Event()
+        self.thread_event.set()
+        self.thread = Thread(target=f, args=(self.thread_event))
+        self.thread.run()
+
+    def stop(self):
+        self.thead_event.clear()
+
 
 if __name__ == '__main__':
     m = manager('/Users/shum/Desktop/Screenshot 2022-04-03 at 3.16.13 AM.png', (100, 50))
+    m.update_account_status(m.accounts[0])

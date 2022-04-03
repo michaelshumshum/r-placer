@@ -3,25 +3,41 @@ from threading import Thread
 import jwt
 import time
 import json
-
-with open('config.json', 'r') as f:
-    config = json.load(f)
+import _config
 
 with open('dev_accounts.txt', 'r') as f:
     dev_accounts = f.read().split('\n')
 
 
-def _payload(coordinates, color):
+def _setpixel_payload(coordinates, color):
     x, y = coordinates
+    canvas = 0
+    while canvas > 1000:  # adjust x-coordinate for other canvases
+        x -= 1000
+        canvas += 1
     return {'operationName': 'setPixel',
             'query': "mutation setPixel($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetUserCooldownResponseMessageData {\n            nextAvailablePixelTimestamp\n            __typename\n          }\n          ... on SetPixelResponseMessageData {\n            timestamp\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
             'variables': {
                 'input': {
-                    'PixelMessageData': {'coordinate': {'x': x, 'y': y}, 'colorIndex': color, 'canvasIndex': 0},
+                    'PixelMessageData': {'coordinate': {'x': x, 'y': y}, 'colorIndex': color, 'canvasIndex': canvas},
                     'actionName': "r/replace:set_pixel"
                 }
             }
             }
+
+
+def _pixelhistory_payload(coordinates):
+    x, y = coordinates
+    canvas = 0
+    while canvas > 1000:  # adjust x-coordinate for other canvases
+        x -= 1000
+        canvas += 1
+    return {"operationName": "pixelHistory",
+            "variables": {
+                "input": {
+                    "actionName": "r/replace:get_tile_history", "PixelMessageData": {
+                        "coordinate": {"x": x, "y": y}, "colorIndex": 0, "canvasIndex": canvas}}},
+            "query": "mutation pixelHistory($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetTileHistoryResponseMessageData {\n            lastModifiedTimestamp\n            userInfo {\n              userID\n              username\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"}
 
 
 def _add_developer_account(name):
@@ -35,8 +51,8 @@ def _add_developer_account(name):
     csrf = text[text.find('csrf_token') + 19:text.find('csrf_token') + 59]
     r = s.post('https://www.reddit.com/login',
                data={
-                   'username': config['main-dev-account']['username'],
-                   'password': config['main-dev-account']['password'],
+                   'username': _config.config['main-dev-account']['username'],
+                   'password': _config.config['main-dev-account']['password'],
                    'csrf_token': csrf,
                    'otp': '',
                    'dest': 'https://www.reddit.com'
@@ -50,9 +66,9 @@ def _add_developer_account(name):
     r = s.post('https://www.reddit.com/api/adddeveloper',
                data={
                    'uh': uh,
-                   'client_id': config['app-client-id'],
+                   'client_id': _config.config['app-client-id'],
                    'name': name,
-                   'id': f'#app-developer-{config["app-client-id"]}',
+                   'id': f'#app-developer-{_config.config["app-client-id"]}',
                    'renderstyle': 'html'
                }, headers={'content-type': 'application/x-www-form-urlencoded',
                            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}
@@ -74,12 +90,12 @@ class account:
         j = json.loads(self.session.post('https://ssl.reddit.com/api/v1/access_token', data={'grant_type': 'password',
                                                                                              'username': self.username,
                                                                                              'password': self.password},
-                                         auth=auth.HTTPBasicAuth(config['app-client-id'], config['app-secret']),
+                                         auth=auth.HTTPBasicAuth(_config.config['app-client-id'], _config.config['app-secret']),
                                          headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}).text)
         self.auth_token = 'Bearer ' + j['access_token']
         self.auth_token_expiry = time.time() + j['expires_in']
 
-    def add_pixel(self, coordinates, color):
+    def check_pixel(self, coordinates):
         if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
             self.get_auth_token()
         r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
@@ -88,10 +104,17 @@ class account:
                                                                                   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
                                                                                   'apollographql-client-name': 'mona-lisa',
                                                                                   'apollographql-client-version': '0.0.1',
-                                                                                  'authorization': self.auth_token}, json=_payload(coordinates, color))
+                                                                                  'authorization': self.auth_token}, json=_pixelhistory_payload(coordinates))
         return r.text
 
-
-if __name__ == '__main__':
-    a = account('arhUGRBAIWIEcoIOVsDT', '6N5yMq.4LbtHw^1r')  # this is the burner account i am using for testing. feel free to use it.
-    print(a.add_pixel((629, 20), 31))
+    def set_pixel(self, coordinates, color):
+        if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
+            self.get_auth_token()
+        r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
+                                                                                  'origin': 'https://hot-potato.reddit.com',
+                                                                                  'referer': 'https://hot-potato.reddit.com/',
+                                                                                  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
+                                                                                  'apollographql-client-name': 'mona-lisa',
+                                                                                  'apollographql-client-version': '0.0.1',
+                                                                                  'authorization': self.auth_token}, json=_setpixel_payload(coordinates, color))
+        return r.text
