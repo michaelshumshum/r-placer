@@ -98,7 +98,7 @@ class manager:
              self.image_location[0] + self.image_size[1],
              self.image_location[1] + self.image_size[0])
         )
-        img.save('board.png')
+        img.save('board.png')  # save image to see success of the bot
         return parse_image.parse_image(img, self.image_location)
 
     def stage_events(self):  # get all unset pixels from get_image_state. create a queue of events that can that the accounts can execute.
@@ -144,25 +144,23 @@ class manager:
                 if self.queue.empty():
                     continue
                 coords, color = self.queue.get()
-                Logger.log(f'Setting pixel {coords} with color {color}', severity=Logger.Verbose)
+                Logger.log(f'{current_thread().name} - Setting pixel {coords} with color {color}', severity=Logger.Verbose)
                 account = self.choose_account()
                 if not account:
-                    Logger.log('All accounts banned!', severity=Logger.Error)
-                    if thread_event.is_set():
-                        self.stop()
-                    break
+                    Logger.log(f'{current_thread().name} - No accounts available! Waiting 30 seconds.', severity=Logger.Error)
+                    time.sleep(30)
                 r = json.loads(account['class'].set_pixel(coords, color))
                 if 'errors' in r.keys():
                     if r['errors'][0]['extensions']['nextAvailablePixelTs'] > 1000:
                         account['state'] = 'BANNED'
-                        Logger.log(f'Account {account["username"]} is banned!', severity=Logger.Warn)
+                        Logger.log(f'{current_thread().name} - Account {account["username"]} is banned!', severity=Logger.Warn)
                     else:
                         account['next_available'] = r['errors'][1]['next available']
-                    Logger.log('Failed last action due to ban.', severity=Logger.Error)
+                    Logger.log(f'{current_thread().name} - Failed last action due to ban.', severity=Logger.Error)
                 else:
                     account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp']
             except Exception as e:
-                Logger.log(f'Failed last action due to exception "{e}".', severity=Logger.Error)
+                Logger.log(f'{current_thread().name} - Failed last action due to exception "{e}".', severity=Logger.Error)
 
     def run(self):
         self.thread_event = Event()
