@@ -141,7 +141,7 @@ class manager:
     def execute_events(self, thread_event):
         while thread_event.is_set():
             try:
-                time.sleep(random.randint(0, int(_config.config['worker-count'] / 2)))  # random sleep for less worker conflict
+                time.sleep(random.randint(1, 1 + int(_config.config['worker-count'] / 2)))  # random sleep for less worker conflict
                 if self.queue.empty():
                     continue
                 coords, color = self.queue.get()
