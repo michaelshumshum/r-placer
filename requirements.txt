@@ -1,7 +1,7 @@
 gspread==5.0.0
 webdriver_manager==3.5.4
 requests==2.26.0
-numpy==1.22.0
+numpy==1.22.3
 selenium==3.141.0
 Pillow==9.1.0
 PyJWT==2.3.0
