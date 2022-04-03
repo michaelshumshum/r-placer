@@ -14,7 +14,8 @@ m.run()
 
 while True:
     try:
-        pass
+        if m.state == 'stopped':
+            break
     except KeyboardInterrupt:
         m.stop()
         break

@@ -62,6 +62,7 @@ class manager:
     def __init__(self, image_dir, location):
         self.queue = Queue()
         self.threads = []
+        self.state = 'idle'
         self.image_data = parse_image.parse_image(image_dir, location)
         self.image_size = parse_image.get_image_size(image_dir)
         self.canvas = 0
@@ -139,6 +140,7 @@ class manager:
     def execute_events(self, thread_event):
         while thread_event.is_set():
             try:
+                time.sleep(random.randint(0, _config.config['worker-count']))  # random sleep for less worker conflict
                 if self.queue.empty():
                     continue
                 coords, color = self.queue.get()
@@ -146,7 +148,8 @@ class manager:
                 account = self.choose_account()
                 if not account:
                     Logger.log('All accounts banned!', severity=Logger.Error)
-                    self.stop()
+                    if thread_event.is_set():
+                        self.stop()
                     break
                 r = json.loads(account['class'].set_pixel(coords, color))
                 if 'errors' in r.keys():
@@ -158,7 +161,6 @@ class manager:
                     Logger.log('Failed last action due to ban.', severity=Logger.Error)
                 else:
                     account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp']
-                time.sleep(1)
             except Exception as e:
                 Logger.log(f'Failed last action due to exception "{e}".', severity=Logger.Error)
 
@@ -171,7 +173,7 @@ class manager:
         for thread in self.threads:
             thread.start()
             Logger.log(f'Started {thread.name}', severity=Logger.Verbose)
-            time.sleep(0.5)
+        self.state = 'running'
 
     def stop(self):
         self.thread_event.clear()
@@ -180,3 +182,4 @@ class manager:
             if thread != current_thread():
                 thread.join()
             Logger.log(f'Stopped {thread.name}', severity=Logger.Verbose)
+        self.state = 'stopped'
