@@ -175,20 +175,21 @@ class manager:
         return None
 
     def execute_events(self, events):
-        for color, coords in events:
-            account = self.choose_account()
-            if not account:
-                raise Exception('All accounts banned!')
-            r = json.loads(account['class'].set_pixel(coords, color))
-            if 'error' in r.keys:
-                account['state'] = 'BANNED'
-            else:
-                account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp']
-            time.sleep(1)
+        for color, c in events:
+            for coords in c:
+                account = self.choose_account()
+                if not account:
+                    raise Exception('All accounts banned!')
+                r = json.loads(account['class'].set_pixel(coords, color))
+                if 'error' in r.keys:
+                    account['state'] = 'BANNED'
+                else:
+                    account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp']
+                time.sleep(1)
 
     def run(self):
         def f(event):
-            while True:
+            while event.is_set():
                 self.execute_events(self.stage_events())
         self.thread_event = Event()
         self.thread_event.set()
@@ -201,4 +202,3 @@ class manager:
 
 if __name__ == '__main__':
     m = manager('/Users/shum/Desktop/Screenshot 2022-04-03 at 3.16.13 AM.png', (100, 50))
-    m.update_account_status(m.accounts[0])

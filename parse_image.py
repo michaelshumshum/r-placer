@@ -1,7 +1,6 @@
 import numpy as np
 from PIL import Image
 
-
 _COLORS = [
     (('BE', '00', '39'), 1),  # dark red
     (('FF', '45', '00'), 2),  # red
