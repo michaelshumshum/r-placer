@@ -17,3 +17,6 @@ create a new file called `accounts.csv` which contains the data for the accounts
 adjust configuration in `config.json`. i have included the information for my app and the developer account for it. feel free to use it as well or change it to your own app. the app is necessary for the accounts to receive their access token. you must also adjust the `main-dev-account` to the information of the account you used to create the app.
 
 run `python main.py <image path> <x-coord> <y-coord>`, where the image path is the image you want to draw, and x-coord/y-coord represent the location you want the image to be drawn.
+
+## notes
+make sure to verify all the emails for all your accounts. that seems to be primary factor in getting accounts banned.
