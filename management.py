@@ -136,11 +136,12 @@ class manager:
                 for color, c in events:
                     for coords in c:
                         self.queue.put((coords, color))
+                Logger.log(f'Updated events. Next update at {next_update}, which is {_config.config["event-update-interval"]} seconds from now.', severity=Logger.Verbose)
 
     def execute_events(self, thread_event):
         while thread_event.is_set():
             try:
-                time.sleep(random.randint(0, _config.config['worker-count']))  # random sleep for less worker conflict
+                time.sleep(random.randint(0, int(_config.config['worker-count'] / 2)))  # random sleep for less worker conflict
                 if self.queue.empty():
                     continue
                 coords, color = self.queue.get()
