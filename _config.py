@@ -1,2 +1,4 @@
+from json import load
+
 with open('config.json', 'r') as f:
-    config = json.load(f)
+    config = load(f)

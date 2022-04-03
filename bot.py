@@ -2,7 +2,6 @@ from requests import Session, auth
 from threading import Thread
 import jwt
 import time
-import json
 import _config
 
 with open('dev_accounts.txt', 'r') as f:
