@@ -30,12 +30,12 @@ _COLORS = [
 
 
 def _closet_color_index(rgb):
-    r, g, b, a = rgb
+    r, g, b = rgb[:3]
     distances = []
     for color, index in _COLORS:
         r1, g1, b1 = color
         distances.append((
-            ((int(r1, 16) - r)**2 + (int(g1, 16) - g)**2 + (int(b1, 16) - b)**2)**0.5,
+            (((int(r1, 16) - r)**2) + ((int(g1, 16) - g)**2) + ((int(b1, 16) - b)**2))**0.5,
             index
         ))
     return sorted(distances)[0][1]
@@ -45,22 +45,15 @@ def get_image_size(image_dir):
     return np.array(Image.open(image_dir)).shape[0:2]
 
 
-def parse_board_array(board, image_location=None):
-    l = {}
-    if not image_location:
-        image_location = (0, 0)
-    for iy, y in enumerate(board):
-        for ix, x in enumerate(y):
-            l[(ix + image_location[0], iy + image_location[1])] = x
-    return l
-
-
 def parse_image(image_dir, image_location=None):  # x and y argument for location of the image on the canvas
     l = {}
     if not image_location:
         image_location = (0, 0)
-    pixel_array = np.array(Image.open(image_dir))
-    for iy, y in enumerate(np.array(Image.open(image_dir))):
+    if isinstance(image_dir, str):
+        pixel_array = np.array(Image.open(image_dir))
+    else:
+        pixel_array = np.array(image_dir)
+    for iy, y in enumerate(pixel_array):
         for ix, x in enumerate(y):
             l[(ix + image_location[0], iy + image_location[1])] = _closet_color_index(x)
     return l
