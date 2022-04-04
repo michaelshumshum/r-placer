@@ -164,7 +164,7 @@ class account:
         return r.text
 
     def set_pixel(self, coordinates, color):
-        if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
+        if not self.auth_token or (self.auth_token_expiry - time.time() <= 50):
             self.get_auth_token()
         if _config.config['tor']:
             self.tor_controller.signal(Signal.NEWNYM)
