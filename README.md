@@ -1,6 +1,9 @@
 # r-placer
 bot for 2022 r/place
 
+## notice
+i am noticing a spike in banning of accounts, despite my accounts lasting until now. looks like they are cracking down on bots, most likely due to the end of r/place.
+
 ## what
 working r/place bot that takes an input image, location, and account login to draw to the r/place canvas. relatively neat compared to [this one](https://github.com/rdeepak2002/reddit-place-script-2022) as coding style is more OOP. though, could still need some touching up.
 
