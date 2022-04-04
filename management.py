@@ -96,7 +96,7 @@ class manager:
         self.accounts[0]['class'].get_auth_token()
         r = json.loads(get('https://canvas.codes/canvas').text)
         canvas_quadrant = ['top_left', 'top_right', 'bottom_left', 'bottom_right']
-        img = Image.open(BytesIO(get(r['quadrants'][canvas_quadrant[self.canvas - 1]]).content))
+        img = Image.open(BytesIO(get(r['quadrants'][canvas_quadrant[self.canvas]]).content))
         img = img.convert('RGB').crop(
             (self.image_location[0],
              self.image_location[1],
