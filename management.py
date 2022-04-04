@@ -162,7 +162,7 @@ class manager:
                 if self.queue.empty():
                     continue
                 coords, color = self.queue.get()
-                Logger.log(f'{current_thread().name} - Setting pixel {coords} to color {color}', severity=Logger.Verbose)
+                Logger.log(f'{current_thread().name} - Setting pixel {coords} on canvas {self.canvas} to color {color}', severity=Logger.Verbose)
                 account = self.choose_account()
                 if not account:
                     Logger.log(f'{current_thread().name} - No accounts available! Waiting 30 seconds.', severity=Logger.Error)
