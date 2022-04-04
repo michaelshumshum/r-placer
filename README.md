@@ -1,14 +1,11 @@
 # r-placer
 bot for 2022 r/place
 
-## notice
-
-currently no support for canvases 3 and 4 as the endpoint used is not updated yet.
-
 ## what
 working r/place bot that takes an input image, location, and account login to draw to the r/place canvas. relatively neat compared to [this one](https://github.com/rdeepak2002/reddit-place-script-2022) as coding style is more OOP. though, could still need some touching up.
 
 supports multiple accounts.
+automatically determines which canvas to add to. just use coordinates.
 ## contributing
 please
 
