@@ -63,16 +63,23 @@ class manager:
         self.queue = Queue()
         self.threads = []
         self.state = 'idle'
-        self.image_data = parse_image.parse_image(image_dir, location)
-        self.image_size = parse_image.get_image_size(image_dir)
-        self.canvas = 0
-        x = self.image_size[0]
-        while self.canvas > 1000:  # adjust x-coordinate for other canvases
-            x -= 1000
-            self.canvas += 1
-
-        self.image_location = location
+        self.image_location = list(location)
+        if (self.image_location[0] > 1000):
+            self.image_location[0] -= 1000
+            if (self.image_location[1] > 1000):
+                self.image_location[1] -= 1000
+                self.canvas = 4
+            else:
+                self.canvas = 2
+        else:
+            if (self.image_location[1] > 1000):
+                self.image_location[1] -= 1000
+                self.canvas = 3
+            else:
+                self.canvas = 1
         self.accounts = []
+        self.image_data = parse_image.parse_image(image_dir, self.image_location)
+        self.image_size = parse_image.get_image_size(image_dir)
         with open('accounts.csv', 'r') as f:
             for row in reader(f, delimiter=' '):
                 email, username, password = row
@@ -88,10 +95,8 @@ class manager:
     def get_board(self):  # from https://github.com/Zequez/reddit-placebot/issues/46#issuecomment-1086736236
         self.accounts[0]['class'].get_auth_token()
         r = json.loads(get('https://canvas.codes/canvas').text)
-        if self.canvas == 0:
-            img = Image.open(BytesIO(get(r['canvas_left']).content))
-        else:
-            img = Image.open(BytesIO(get(r['canvas_right']).content))
+        canvas_quadrant = ['top_left', 'top_right', 'bottom_left', 'bottom_right']
+        img = Image.open(BytesIO(get(r['quadrants'][canvas_quadrant[self.canvas - 1]]).content))
         img = img.convert('RGB').crop(
             (self.image_location[0],
              self.image_location[1],
@@ -146,7 +151,7 @@ class manager:
                 if self.queue.empty():
                     continue
                 coords, color = self.queue.get()
-                Logger.log(f'{current_thread().name} - Setting pixel {coords} with color {color}', severity=Logger.Verbose)
+                Logger.log(f'{current_thread().name} - Setting pixel {coords} to color {color}', severity=Logger.Verbose)
                 account = self.choose_account()
                 if not account:
                     Logger.log(f'{current_thread().name} - No accounts available! Waiting 30 seconds.', severity=Logger.Error)
