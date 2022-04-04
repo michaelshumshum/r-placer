@@ -1,14 +1,14 @@
 from requests import Session, auth
-from threading import Thread
-from json import loads
+from json import loads, dump
 from stem import Signal
 from stem.control import Controller
+from random import choice
 import jwt
 import time
 import _config
 
-with open('dev_accounts.txt', 'r') as f:
-    dev_accounts = f.read().split('\n')
+with open('dev_accounts.json', 'r') as f:
+    dev_accounts = loads(f.read())
 
 
 def _setpixel_payload(coordinates, color):
@@ -62,12 +62,17 @@ def _pixelhistory_payload(coordinates):
 
 
 def _add_developer_account(name):
-    def _write_file():
-        dev_accounts.append(name)
-        with open('dev_accounts.txt', 'a') as f:
-            f.write('\n' + name)
-    Thread(target=_write_file).start()
-    s = Session()
+    def _write_file(client_id, secret):
+        dev_accounts[name] = {"client-id": client_id, "secret": secret}
+        with open('dev_accounts.json', 'r') as f:
+            accounts = loads(f.read())
+        with open('dev_accounts.json', 'w') as f:
+            accounts.update({name: {"client-id": client_id, "secret": secret}})
+            dump(accounts, f)
+    if _config.config['tor']:
+        s = _tor_session()
+    else:
+        s = Session()
     text = s.get('https://www.reddit.com/login').text
     csrf = text[text.find('csrf_token') + 19:text.find('csrf_token') + 59]
     r = s.post('https://www.reddit.com/login',
@@ -84,16 +89,25 @@ def _add_developer_account(name):
     text = s.get('https://reddit.com/prefs/apps', headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}).text
     uh = text[text.find('<input type="hidden" name="uh" value=') + 38:text.find('<input type="hidden" name="uh" value=') + 88]
     time.sleep(1)
-    r = s.post('https://www.reddit.com/api/adddeveloper',
-               data={
-                   'uh': uh,
-                   'client_id': _config.config['app-client-id'],
-                   'name': name,
-                   'id': f'#app-developer-{_config.config["app-client-id"]}',
-                   'renderstyle': 'html'
-               }, headers={'content-type': 'application/x-www-form-urlencoded',
-                           'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}
-               )
+    while True:
+        app = choice(_config.config['apps'])
+        client_id = app['client-id']
+        secret = app['secret']
+        r = s.post('https://www.reddit.com/api/adddeveloper',
+                   data={
+                       'uh': uh,
+                       'client_id': client_id,
+                       'name': name,
+                       'id': f'#app-developer-{client_id}',
+                       'renderstyle': 'html'
+                   }, headers={'content-type': 'application/x-www-form-urlencoded',
+                               'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}
+                   )
+        if (r.status_code != 200) or (not loads(r.text)['success']):
+            continue
+        else:
+            break
+    _write_file(client_id, secret)
 
 
 def _tor_session():
@@ -118,15 +132,16 @@ class account:
     def setup_tor(self):
         self.tor_controller = Controller.from_port(port=9051)
         self.tor_controller.authenticate(password='r-placer')
-        self.tor_controller.signal(Signal.NEWNYM)
 
     def get_auth_token(self):
-        if self.username not in dev_accounts:
+        if self.username not in dev_accounts.keys():
             _add_developer_account(self.username)
+        client_id = dev_accounts[self.username]['client-id']
+        secret = dev_accounts[self.username]['secret']
         j = loads(self.session.post('https://ssl.reddit.com/api/v1/access_token', data={'grant_type': 'password',
                                                                                         'username': self.username,
                                                                                         'password': self.password},
-                                    auth=auth.HTTPBasicAuth(_config.config['app-client-id'], _config.config['app-secret']),
+                                    auth=auth.HTTPBasicAuth(client_id, secret),
                                     headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'}).text)
         while True:  # might hit rate limit. retry later to obtain access token.
             try:
@@ -137,7 +152,6 @@ class account:
         self.auth_token_expiry = time.time() + j['expires_in']
 
     def check_pixel(self, coordinates):
-        self.tor_controller.signal(Signal.NEWNYM)
         if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
             self.get_auth_token()
         r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
@@ -150,9 +164,10 @@ class account:
         return r.text
 
     def set_pixel(self, coordinates, color):
-        self.tor_controller.signal(Signal.NEWNYM)
         if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
             self.get_auth_token()
+        if _config.config['tor']:
+            self.tor_controller.signal(Signal.NEWNYM)
         r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
                                                                                   'origin': 'https://hot-potato.reddit.com',
                                                                                   'referer': 'https://hot-potato.reddit.com/',
