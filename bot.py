@@ -11,21 +11,8 @@ with open('dev_accounts.json', 'r') as f:
     dev_accounts = loads(f.read())
 
 
-def _setpixel_payload(coordinates, color):
+def _setpixel_payload(coordinates, color, canvas):
     x, y = coordinates
-    if (x > 1000):  # support for the new canvases
-        x -= 1000
-        if (y > 1000):
-            y -= 1000
-            canvas = 3
-        else:
-            canvas = 1
-    else:
-        if (y > 1000):
-            y -= 1000
-            canvas = 2
-        else:
-            canvas = 0
     return {'operationName': 'setPixel',
             'query': "mutation setPixel($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetUserCooldownResponseMessageData {\n            nextAvailablePixelTimestamp\n            __typename\n          }\n          ... on SetPixelResponseMessageData {\n            timestamp\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
             'variables': {
@@ -35,29 +22,6 @@ def _setpixel_payload(coordinates, color):
                 }
             }
             }
-
-
-def _pixelhistory_payload(coordinates):
-    x, y = coordinates
-    if (x > 1000):
-        x -= 1000
-        if (y > 1000):
-            y -= 1000
-            canvas = 3
-        else:
-            canvas = 1
-    else:
-        if (y > 1000):
-            y -= 1000
-            canvas = 2
-        else:
-            canvas = 0
-    return {"operationName": "pixelHistory",
-            "variables": {
-                "input": {
-                    "actionName": "r/replace:get_tile_history", "PixelMessageData": {
-                        "coordinate": {"x": x, "y": y}, "colorIndex": 0, "canvasIndex": canvas}}},
-            "query": "mutation pixelHistory($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetTileHistoryResponseMessageData {\n            lastModifiedTimestamp\n            userInfo {\n              userID\n              username\n              __typename\n            }\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"}
 
 
 def _add_developer_account(name):
@@ -150,19 +114,7 @@ class account:
                 time.sleep(5)
         self.auth_token_expiry = time.time() + j['expires_in']
 
-    def check_pixel(self, coordinates):
-        if not self.auth_token or (self.auth_token_expiry - time.time() <= 50):
-            self.get_auth_token()
-        r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
-                                                                                  'origin': 'https://hot-potato.reddit.com',
-                                                                                  'referer': 'https://hot-potato.reddit.com/',
-                                                                                  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
-                                                                                  'apollographql-client-name': 'mona-lisa',
-                                                                                  'apollographql-client-version': '0.0.1',
-                                                                                  'authorization': self.auth_token}, json=_pixelhistory_payload(coordinates))
-        return r.text
-
-    def set_pixel(self, coordinates, color):
+    def set_pixel(self, coordinates, color, canvas):
         if not self.auth_token or (self.auth_token_expiry - time.time() <= 50):
             self.get_auth_token()
         if _config.config['tor']:
@@ -173,5 +125,5 @@ class account:
                                                                                   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
                                                                                   'apollographql-client-name': 'mona-lisa',
                                                                                   'apollographql-client-version': '0.0.1',
-                                                                                  'authorization': self.auth_token}, json=_setpixel_payload(coordinates, color))
+                                                                                  'authorization': self.auth_token}, json=_setpixel_payload(coordinates, color, canvas))
         return r.text
