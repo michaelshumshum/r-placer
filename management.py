@@ -156,6 +156,7 @@ class manager:
                 if not account:
                     Logger.log(f'{current_thread().name} - No accounts available! Waiting 30 seconds.', severity=Logger.Error)
                     time.sleep(30)
+                    continue
                 r = json.loads(account['class'].set_pixel(coords, color))
                 if 'errors' in r.keys():
                     if (r['errors'][0]['extensions']['nextAvailablePixelTs'] / 100) - time.time() > 1000:

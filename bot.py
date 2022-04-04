@@ -1,6 +1,8 @@
 from requests import Session, auth
 from threading import Thread
 from json import loads
+from stem import Signal
+from stem.control import Controller
 import jwt
 import time
 import _config
@@ -94,14 +96,29 @@ def _add_developer_account(name):
                )
 
 
+def _tor_session():
+    s = Session()
+    s.proxies = {'http':  'socks5://localhost:9050',
+                 'https': 'socks5://localhost:9050'}
+    return s
+
+
 class account:
     def __init__(self, username, password, auth_token=None):
         self.username = username
         self.password = password
-
-        self.session = Session()
+        if _config.config['tor']:
+            self.session = _tor_session()
+            self.setup_tor()
+        else:
+            self.session = Session()
         self.auth_token = auth_token
         self.auth_token_expiry = 0
+
+    def setup_tor(self):
+        self.tor_controller = Controller.from_port(port=9051)
+        self.tor_controller.authenticate(password='r-placer')
+        self.tor_controller.signal(Signal.NEWNYM)
 
     def get_auth_token(self):
         if self.username not in dev_accounts:
@@ -120,6 +137,7 @@ class account:
         self.auth_token_expiry = time.time() + j['expires_in']
 
     def check_pixel(self, coordinates):
+        self.tor_controller.signal(Signal.NEWNYM)
         if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
             self.get_auth_token()
         r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
@@ -132,6 +150,7 @@ class account:
         return r.text
 
     def set_pixel(self, coordinates, color):
+        self.tor_controller.signal(Signal.NEWNYM)
         if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
             self.get_auth_token()
         r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
