@@ -152,6 +152,8 @@ class manager:
                     for coords in c:
                         self.queue.put((coords, color))
                 Logger.log(f'Updated events. Next update at {next_update}, which is {_config.config["event-update-interval"]} seconds from now.', severity=Logger.Verbose)
+                for account in self.accounts:
+                    print(f"{account['username']}\t{account['next_available']}\t{account['state']}")
 
     def execute_events(self, thread_event):
         while thread_event.is_set():
@@ -176,6 +178,7 @@ class manager:
                         self.check_ban_status()
                     else:
                         account['state'] = 'IDLE'
+                        Logger.log(f'{current_thread().name} - Failed last action due to unknown next availability.', severity=Logger.Warn)
                         account['next_available'] = r['errors'][0]['extensions']['nextAvailablePixelTs'] / 1000
                 else:
                     account['state'] = 'IDLE'
