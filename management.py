@@ -129,6 +129,15 @@ class manager:
                 return account
         return None
 
+    def check_ban_status(self):
+        bans = 1
+        for account in self.accounts:
+            if account['state'] == 'BANNED':
+                bans += 1
+        if bans == len(self.accounts):
+            Logger.log('All accounts banned!', severity=Logger.Error)
+            self.stop()
+
     def event_queuer(self, thread_event):
         def sorted_key(x):
             return len(x[1])
@@ -163,6 +172,7 @@ class manager:
                         account['state'] = 'BANNED'
                         Logger.log(f'{current_thread().name} - Account {account["username"]} is banned!', severity=Logger.Warn)
                         Logger.log(f'{current_thread().name} - Failed last action due to ban.', severity=Logger.Error)
+                        self.check_ban_status()
                     else:
                         account['next_available'] = r['errors'][1]['next available']
                 else:
