@@ -171,6 +171,7 @@ class manager:
                 Logger.log(f'{current_thread().name} - Setting pixel {coords} on canvas {self.canvas} to color {color}', severity=Logger.Verbose)
                 r = json.loads(account['class'].set_pixel(coords, color, self.canvas))
                 if 'errors' in r.keys():
+                    self.queue.put((coords, color))  # retry the last action
                     if (r['errors'][0]['extensions']['nextAvailablePixelTs'] / 1000) - time.time() > 1000:
                         account['state'] = 'BANNED'
                         Logger.log(f'{current_thread().name} - Account {account["username"]} is banned!', severity=Logger.Warn)
