@@ -159,13 +159,14 @@ class manager:
         while thread_event.is_set():
             try:
                 time.sleep(random.randint(1, 1 + int(_config.config['worker-count'] / 2)))  # random sleep for less worker conflict
-                account = self.choose_account()
-                if not account:
-                    Logger.log(f'{current_thread().name} - No accounts available! Waiting 30 seconds.', severity=Logger.Error)
-                    time.sleep(30)
-                    continue
                 if self.queue.empty():
                     continue
+                else:
+                    account = self.choose_account()
+                    if not account:
+                        Logger.log(f'{current_thread().name} - No accounts available! Waiting 30 seconds.', severity=Logger.Error)
+                        time.sleep(30)
+                        continue
                 account['state'] = 'IN USE'
                 coords, color = self.queue.get()
                 Logger.log(f'{current_thread().name} - Setting pixel {coords} on canvas {self.canvas} to color {color}', severity=Logger.Verbose)
