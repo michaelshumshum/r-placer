@@ -125,7 +125,6 @@ class manager:
             if (account['state'] == 'BANNED') or (account['next_available'] > time.time()) or (account['state'] == 'IN USE'):
                 continue
             else:
-                account['state'] = 'IN USE'
                 return account
         return None
 
@@ -166,6 +165,7 @@ class manager:
                     continue
                 if self.queue.empty():
                     continue
+                account['state'] = 'IN USE'
                 coords, color = self.queue.get()
                 Logger.log(f'{current_thread().name} - Setting pixel {coords} on canvas {self.canvas} to color {color}', severity=Logger.Verbose)
                 r = json.loads(account['class'].set_pixel(coords, color, self.canvas))
@@ -184,6 +184,7 @@ class manager:
                     account['state'] = 'IDLE'
                     account['next_available'] = r['data']['act']['data'][0]['data']['nextAvailablePixelTimestamp'] / 1000
             except Exception as e:
+                account['state'] = 'IDLE'
                 Logger.log(f'{current_thread().name} - Failed last action due to exception "{e}".', severity=Logger.Error)
 
     def run(self):
