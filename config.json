@@ -15,6 +15,26 @@
     {
       "client-id": "ul1AAwRx7-CK7l6JrjkMpg",
       "secret": "kOhY6YYXsVaBok_NPwMeaxa3og5UOA"
+    },
+    {
+      "client-id": "xfNycUeMXCUVLBacTKXWvQ",
+      "secret": "cU-YIbU-heuF-i1_QbosjNjx7mZoxg"
+    },
+    {
+      "client-id": "bFiOH8jCv6yZMzUotBNrXA",
+      "secret": "Oscl9Bis6QCARpupy6UwsDYFi5RnnA"
+    },
+    {
+      "client-id": "HrcN4GuZFo3tc1UodoYz1w",
+      "secret": "	J6fDaq0jJJPJbER1y3mcL-Ukj5I9ZQ"
+    },
+    {
+      "client-id": "TkQpYdTqhs687EYJh-QyzA",
+      "secret": "suQl1YqZFnyimJCrSKE0T4spwXKkLQ"
+    },
+    {
+      "client-id": "0k_nc8uDeaTqwkQpVmb3rQ",
+      "secret": "ZXYddX9XnKyNfIRNaWVUh43eRWfgVQ"
     }
   ],
   "main-dev-account": {
