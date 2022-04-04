@@ -2,8 +2,8 @@
   "account-maker-email": "morganchristansen98@protonmail.com",
   "verbose": true,
   "event-update-interval": 30,
-  "worker-count": 4,
-  "tor": true,
+  "worker-count": 12,
+  "tor": false,
   "apps": [{
       "client-id": "L3bpmcAAKprp9lsNoWAJWw",
       "secret": "MD88z0C4RW591wU3ejWyJkE3MB6cQg"
@@ -26,7 +26,7 @@
     },
     {
       "client-id": "HrcN4GuZFo3tc1UodoYz1w",
-      "secret": "	J6fDaq0jJJPJbER1y3mcL-Ukj5I9ZQ"
+      "secret": "J6fDaq0jJJPJbER1y3mcL-Ukj5I9ZQ"
     },
     {
       "client-id": "TkQpYdTqhs687EYJh-QyzA",
