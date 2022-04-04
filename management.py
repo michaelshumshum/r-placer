@@ -68,15 +68,15 @@ class manager:
             self.image_location[0] -= 1000
             if (self.image_location[1] > 1000):
                 self.image_location[1] -= 1000
-                self.canvas = 4
-            else:
-                self.canvas = 2
-        else:
-            if (self.image_location[1] > 1000):
-                self.image_location[1] -= 1000
                 self.canvas = 3
             else:
                 self.canvas = 1
+        else:
+            if (self.image_location[1] > 1000):
+                self.image_location[1] -= 1000
+                self.canvas = 2
+            else:
+                self.canvas = 0
         self.accounts = []
         self.image_data = parse_image.parse_image(image_dir, self.image_location)
         self.image_size = parse_image.get_image_size(image_dir)
