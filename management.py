@@ -149,10 +149,11 @@ class manager:
                     self.queue.queue.clear()
                 for color, c in events:
                     for coords in c:
+                        random.shuffle(c)
                         self.queue.put((coords, color))
                 Logger.log(f'Updated events. Next update at {next_update}, which is {_config.config["event-update-interval"]} seconds from now.', severity=Logger.Verbose)
                 for account in self.accounts:
-                    print(f"{account['username']}\t{account['next_available']}\t{account['state']}")
+                    print(f"{account['username']}\t\t{account['next_available']}\t{account['state']}")
 
     def execute_events(self, thread_event):
         while thread_event.is_set():
@@ -196,6 +197,7 @@ class manager:
         for thread in self.threads:
             thread.start()
             Logger.log(f'Started {thread.name}', severity=Logger.Verbose)
+            time.sleep(0.1)
         self.state = 'running'
 
     def stop(self):
