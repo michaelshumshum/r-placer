@@ -13,20 +13,19 @@ with open('dev_accounts.json', 'r') as f:
 
 def _setpixel_payload(coordinates, color):
     x, y = coordinates
-    canvas = 0
     if (x > 1000):  # support for the new canvases
         x -= 1000
-        if (y > 1000):
-            y -= 1000
-            canvas = 4
-        else:
-            canvas = 2
-    else:
         if (y > 1000):
             y -= 1000
             canvas = 3
         else:
             canvas = 1
+    else:
+        if (y > 1000):
+            y -= 1000
+            canvas = 2
+        else:
+            canvas = 0
     return {'operationName': 'setPixel',
             'query': "mutation setPixel($input: ActInput!) {\n  act(input: $input) {\n    data {\n      ... on BasicMessage {\n        id\n        data {\n          ... on GetUserCooldownResponseMessageData {\n            nextAvailablePixelTimestamp\n            __typename\n          }\n          ... on SetPixelResponseMessageData {\n            timestamp\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
             'variables': {
@@ -44,15 +43,15 @@ def _pixelhistory_payload(coordinates):
         x -= 1000
         if (y > 1000):
             y -= 1000
-            canvas = 4
-        else:
-            canvas = 2
-    else:
-        if (y > 1000):
-            y -= 1000
             canvas = 3
         else:
             canvas = 1
+    else:
+        if (y > 1000):
+            y -= 1000
+            canvas = 2
+        else:
+            canvas = 0
     return {"operationName": "pixelHistory",
             "variables": {
                 "input": {
@@ -152,7 +151,7 @@ class account:
         self.auth_token_expiry = time.time() + j['expires_in']
 
     def check_pixel(self, coordinates):
-        if not self.auth_token or (time.time() - self.auth_token_expiry >= 3550):
+        if not self.auth_token or (self.auth_token_expiry - time.time() <= 50):
             self.get_auth_token()
         r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
                                                                                   'origin': 'https://hot-potato.reddit.com',
