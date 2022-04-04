@@ -15,7 +15,7 @@ please
 ## setup
 create a new file called `accounts.csv` which contains the data for the accounts you want to use. each row should formatted like `email username password`, where spaces are delimiters. email is optional, so you can put filler information there if needed.
 
-adjust configuration in `config.json`. i have included the information for my app and the developer account for it. feel free to use it as well or change it to your own app. the app is necessary for the accounts to receive their access token. you must also adjust the `main-dev-account` to the information of the account you used to create the app.
+adjust configuration in `config.json`. i have included the information for my apps and the developer account for it. feel free to use it as well or change it to your own apps. the apps are necessary for the accounts to receive their access token. more apps = more accounts. you must also adjust the `main-dev-account` to the information of the account you used to create the app.
 
 run `python main.py <image path> <x-coord> <y-coord>`, where the image path is the image you want to draw, and x-coord/y-coord represent the location you want the image to be drawn.
 
