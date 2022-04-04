@@ -143,10 +143,10 @@ class manager:
         next_update = 0
         while thread_event.is_set():
             if time.time() >= next_update:
-                with self.queue.mutex:
-                    self.queue.queue.clear()
                 events = sorted(list(self.stage_events().items()), key=sorted_key)
                 next_update = time.time() + _config.config['event-update-interval']
+                with self.queue.mutex:
+                    self.queue.queue.clear()
                 for color, c in events:
                     for coords in c:
                         self.queue.put((coords, color))
