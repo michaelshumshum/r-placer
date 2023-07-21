@@ -5,3 +5,4 @@ numpy==1.22.3
 selenium==3.141.0
 Pillow==9.1.0
 PyJWT==2.3.0
+websocket-client

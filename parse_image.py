@@ -60,7 +60,6 @@ def parse_image(image_dir, image_location=None):  # x and y argument for locatio
         pixel_array = np.array(Image.open(image_dir))
     else:
         pixel_array = np.array(image_dir)
-    print(pixel_array)
     for iy, y in enumerate(pixel_array):
         for ix, x in enumerate(y):
             l[(ix + image_location[0], iy + image_location[1])] = _closet_color_index(x)
