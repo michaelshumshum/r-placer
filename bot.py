@@ -120,10 +120,10 @@ class account:
         if _config.config['tor']:
             self.tor_controller.signal(Signal.NEWNYM)
         r = self.session.post('https://gql-realtime-2.reddit.com/query', headers={'content-type': 'application/json',
-                                                                                  'origin': 'https://hot-potato.reddit.com',
-                                                                                  'referer': 'https://hot-potato.reddit.com/',
+                                                                                  'origin': 'https://garlic-bread.reddit.com',
+                                                                                  'referer': 'https://garlic-bread.reddit.com/',
                                                                                   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
-                                                                                  'apollographql-client-name': 'mona-lisa',
+                                                                                  'apollographql-client-name': 'garlic-bread',
                                                                                   'apollographql-client-version': '0.0.1',
                                                                                   'authorization': self.auth_token}, json=_setpixel_payload(coordinates, color, canvas))
         return r.text
