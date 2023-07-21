@@ -1,5 +1,7 @@
 # r-placer
-bot for 2022 r/place
+bot for ~2022~ 2023 r/place
+
+unarchived if anybody wants to help work on this. i am not sure if it works. my main developer account was banned.
 
 ## place has ended. thanks to everyone who participated and to those who used my bot!
 ![place.png](/place.jpg)
