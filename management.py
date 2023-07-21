@@ -2,6 +2,7 @@ import bot
 import parse_image
 import json
 import numpy as np
+from websocket import WebSocketConnectionClosedException, create_connection
 import random
 import time
 import _config
@@ -37,8 +38,10 @@ class Logger:
     verbose = False  # change this to true for inclusion verbose logging
 
     @classmethod
-    def log(cls, text, severity=Moderate):
+    def log(cls, text, severity):
         output = ''
+        if not severity:
+            raise ValueError('Severity is required')
         if not isinstance(severity(), cls.Severity):
             raise TypeError(f'must be Logger.Severity, not {severity.__name__}')
         if isinstance(severity(), cls.Verbose) and not cls.verbose:
@@ -63,20 +66,20 @@ class manager:
         self.queue = Queue()
         self.threads = []
         self.state = 'idle'
-        self.image_location = list(location)
+        self.image_location = [location[0], location[1]]
         if (self.image_location[0] > 1000):
             self.image_location[0] -= 1000
+            if (self.image_location[1] > 1000):
+                self.image_location[1] -= 1000
+                self.canvas = 4
+            else:
+                self.canvas = 2
+        else:
             if (self.image_location[1] > 1000):
                 self.image_location[1] -= 1000
                 self.canvas = 3
             else:
                 self.canvas = 1
-        else:
-            if (self.image_location[1] > 1000):
-                self.image_location[1] -= 1000
-                self.canvas = 2
-            else:
-                self.canvas = 0
         self.accounts = []
         self.image_data = parse_image.parse_image(image_dir, self.image_location)
         self.image_size = parse_image.get_image_size(image_dir)
@@ -92,19 +95,156 @@ class manager:
                     'state': 'IDLE'
                 })
 
-    def get_board(self):  # from https://github.com/Zequez/reddit-placebot/issues/46#issuecomment-1086736236
+    def get_board(self):
         self.accounts[0]['class'].get_auth_token()
-        r = json.loads(get('https://canvas.codes/canvas').text)
-        canvas_quadrant = ['top_left', 'top_right', 'bottom_left', 'bottom_right']
-        img = Image.open(BytesIO(get(r['quadrants'][canvas_quadrant[self.canvas]]).content))
-        img = img.convert('RGB').crop(
-            (self.image_location[0],
-             self.image_location[1],
-             self.image_location[0] + self.image_size[1],
-             self.image_location[1] + self.image_size[0])
-        )
-        img.save('board.png')  # save image to see success of the bot
-        return parse_image.parse_image(img, self.image_location)
+        while True:
+            try:
+                ws = create_connection(
+                    "wss://gql-realtime-2.reddit.com/query",
+                    origin="https://garlic-bread.reddit.com",
+                )
+                ws.send(
+                json.dumps(
+                    {
+                        "type": "connection_init",
+                        "payload": {"Authorization": self.accounts[0]['class'].auth_token},
+                    }
+                )
+                )
+                while True:
+                    try:
+                        msg = ws.recv()
+                    except WebSocketConnectionClosedException as e:
+                        continue
+                    if msg is None:
+                        Logger.log(text='Websocket failure', severity=Logger.Error)
+                        sys.exit()
+                    if msg.startswith('{"type":"connection_ack"}'):
+                        break
+                ws.send(json.dumps(
+                                {
+                                    "id": "1",
+                                    "type": "start",
+                                    "payload": {
+                                        "variables": {
+                                            "input": {
+                                                "channel": {
+                                                    "teamOwner": "GARLICBREAD",
+                                                    "category": "CONFIG",
+                                                }
+                                            }
+                                        },
+                                        "extensions": {},
+                                        "operationName": "configuration",
+                                        "query": "subscription configuration($input: SubscribeInput!) {\n  subscribe(input: $input) {\n    id\n    ... on BasicMessage {\n      data {\n        __typename\n        ... on ConfigurationMessageData {\n          colorPalette {\n            colors {\n              hex\n              index\n              __typename\n            }\n            __typename\n          }\n          canvasConfigurations {\n            index\n            dx\n            dy\n            __typename\n          }\n          canvasWidth\n          canvasHeight\n          __typename\n        }\n      }\n      __typename\n    }\n    __typename\n  }\n}\n",
+                                    },
+                                }
+                            )
+                        )
+                while True:
+                    canvas_payload = json.loads(ws.recv())
+                    if canvas_payload["type"] == "data":
+                        canvas_details = canvas_payload["payload"]["data"]["subscribe"]["data"]
+                        break
+                canvas_sockets = []
+
+                canvas_count = len(canvas_details["canvasConfigurations"])
+
+                for i in range(0, canvas_count):
+                    canvas_sockets.append(i)
+                    ws.send(
+                        json.dumps(
+                            {
+                                "id": str(i),
+                                "type": "start",
+                                "payload": {
+                                    "variables": {
+                                        "input": {
+                                            "channel": {
+                                                "teamOwner": "GARLICBREAD",
+                                                "category": "CANVAS",
+                                                "tag": str(i),
+                                            }
+                                        }
+                                    },
+                                    "extensions": {},
+                                    "operationName": "replace",
+                                    "query": """subscription replace($input: SubscribeInput!) {subscribe(input: $input) {id... on BasicMessage { data {
+                    __typename
+                    ... on FullFrameMessageData {
+                    __typename
+                    name
+                    timestamp
+                    }
+                    ... on DiffFrameMessageData {
+                    __typename
+                    name
+                    currentTimestamp
+                    previousTimestamp
+                    }
+                }
+                }
+            }
+            }""",
+                                },
+                            }
+                        )
+                    )
+                imgs = []
+
+                while len(canvas_sockets) > 0:
+                    temp = json.loads(ws.recv())
+                    if temp["type"] == "data":
+                        msg = temp["payload"]["data"]["subscribe"]
+                        if msg["data"]["__typename"] == "FullFrameMessageData":
+                            img_id = int(temp["id"])
+                            if img_id in canvas_sockets:
+                                try:
+                                    imgs.append(
+                                        [
+                                            img_id,
+                                            Image.open(BytesIO(get(msg["data"]["name"],stream=True,).content)),
+                                        ]
+                                    )
+                                except Exception as e:
+                                    pass
+
+                                canvas_sockets.remove(img_id)
+
+
+                for i in range(0, canvas_count - 1):
+                    ws.send(json.dumps({"id": str(2 + i), "type": "stop"}))
+
+                ws.close()
+
+                new_img_width = (
+                    max(map(lambda x: x["dx"], canvas_details["canvasConfigurations"])) +
+                    canvas_details["canvasWidth"]
+                )
+
+                new_img_height = (
+                    max(map(lambda x: x["dy"], canvas_details["canvasConfigurations"])) +
+                    canvas_details["canvasHeight"]
+                )
+                new_img = Image.new("RGB", (new_img_width, new_img_height))
+
+                for idx, img in enumerate(sorted(imgs, key=lambda x: x[0])):
+                    dx_offset = int(canvas_details["canvasConfigurations"][idx]["dx"])
+                    dy_offset = int(canvas_details["canvasConfigurations"][idx]["dy"])
+                    new_img.paste(img[1], (dx_offset, dy_offset))
+
+                new_img = new_img.crop((0,500,1500,1500)
+                        ).crop(
+                                    (self.image_location[0],
+                                     self.image_location[1] ,
+                                     self.image_location[0] + self.image_size[1] ,
+                                     self.image_location[1] + self.image_size[0] )
+                                )
+                new_img.save('board.png')
+                return parse_image.parse_image(new_img, self.image_location)
+            except Exception as e:
+                print(e)
+                time.sleep(30)
 
     def stage_events(self):  # get all unset pixels from get_image_state. create a queue of events that can that the accounts can execute.
         events = {i: [] for i in range(1, 33)}
@@ -145,15 +285,16 @@ class manager:
             if time.time() >= next_update:
                 events = sorted(list(self.stage_events().items()), key=sorted_key)
                 next_update = time.time() + _config.config['event-update-interval']
-                with self.queue.mutex:
-                    self.queue.queue.clear()
                 for color, c in events:
                     for coords in c:
                         random.shuffle(c)
                         self.queue.put((coords, color))
                 Logger.log(f'Updated events. Next update at {next_update}, which is {_config.config["event-update-interval"]} seconds from now.', severity=Logger.Verbose)
                 for account in self.accounts:
-                    print(f"{account['username']}\t\t{account['next_available']}\t{account['state']}")
+                    if len(account['username']) < 16:
+                        print(f"{account['username']}\t\t{account['next_available']}\t{account['state']}")
+                    else:
+                        print(f"{account['username']}\t{account['next_available']}\t{account['state']}")
 
     def execute_events(self, thread_event):
         while thread_event.is_set():
@@ -169,6 +310,7 @@ class manager:
                         continue
                 account['state'] = 'IN USE'
                 coords, color = self.queue.get()
+                coords = [coords[0], coords[1] + 500]
                 Logger.log(f'{current_thread().name} - Setting pixel {coords} on canvas {self.canvas} to color {color}', severity=Logger.Verbose)
                 r = json.loads(account['class'].set_pixel(coords, color, self.canvas))
                 if 'errors' in r.keys():

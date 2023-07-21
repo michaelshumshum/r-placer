@@ -1,11 +1,13 @@
 # r-placer
-bot for 2022 r/place
+bot for ~2022~ 2023 r/place
 
-## place has ended. thanks to everyone who participated and to those who used my bot!
+unarchived if anybody wants to help work on this. i am not sure if it works. my main developer account was banned, so you must provide your own API key.
+
+## ~place has ended.~ thanks to everyone who participated and to those who used my bot!
 ![place.png](/place.jpg)
 
 ## what
-working r/place bot that takes an input image, location, and account login to draw to the r/place canvas. relatively neat compared to [this one](https://github.com/rdeepak2002/reddit-place-script-2022) as coding style is more OOP. though, could still need some touching up.
+(maybe) working r/place bot that takes an input image, location, and account login to draw to the r/place canvas. relatively neat compared to [this one](https://github.com/rdeepak2002/reddit-place-script-2022) as coding style is more OOP. though, could still need some touching up.
 
 supports multiple accounts.
 automatically determines which canvas to add to. just use coordinates.

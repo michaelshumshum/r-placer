@@ -4,41 +4,22 @@
   "event-update-interval": 30,
   "worker-count": 12,
   "tor": false,
-  "apps": [{
-      "client-id": "L3bpmcAAKprp9lsNoWAJWw",
-      "secret": "MD88z0C4RW591wU3ejWyJkE3MB6cQg"
+  "apps": [
+    {
+      "client-id": "9GjDA0K8MzQpgnSygLxb7A",
+      "secret": "Iv6CbrI-2N1wOPdTQurYUcO06TSjJg"
     },
     {
-      "client-id": "wEne0S-4VnBOJD0v7Lv3RQ",
-      "secret": "-S9BFAw-vyghkodEY5IcQzkmJu2uvA"
+      "client-id": "zDd-IrVMQS_aYofDTdKpSA",
+      "secret": "6xgDrQn66I9F3rLYoOPpED4XGHLvkA"
     },
     {
-      "client-id": "ul1AAwRx7-CK7l6JrjkMpg",
-      "secret": "kOhY6YYXsVaBok_NPwMeaxa3og5UOA"
-    },
-    {
-      "client-id": "xfNycUeMXCUVLBacTKXWvQ",
-      "secret": "cU-YIbU-heuF-i1_QbosjNjx7mZoxg"
-    },
-    {
-      "client-id": "bFiOH8jCv6yZMzUotBNrXA",
-      "secret": "Oscl9Bis6QCARpupy6UwsDYFi5RnnA"
-    },
-    {
-      "client-id": "HrcN4GuZFo3tc1UodoYz1w",
-      "secret": "J6fDaq0jJJPJbER1y3mcL-Ukj5I9ZQ"
-    },
-    {
-      "client-id": "TkQpYdTqhs687EYJh-QyzA",
-      "secret": "suQl1YqZFnyimJCrSKE0T4spwXKkLQ"
-    },
-    {
-      "client-id": "0k_nc8uDeaTqwkQpVmb3rQ",
-      "secret": "ZXYddX9XnKyNfIRNaWVUh43eRWfgVQ"
+      "client-id": "K8Eth9i_qQ5zbtXDI9Em7w",
+      "secret": "baaqWQ8REjC9LKLqY_ULojr7gh--7g"
     }
   ],
   "main-dev-account": {
-    "username": "OEawoobNgXFQGfpwTDlS",
-    "password": "#z|6D~LICM}7tZYo"
+    "username": "xebMnVWIdoxjReEZepoU",
+    "password": "@P8xlIrB-zz0PmaB"
   }
 }
